@@ -59,6 +59,10 @@ else
 	"$QMAKE" "CONFIG+=non_portable" pdf_viewer_build_config.pro -after "QMAKE_MACOSX_DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET"
 fi
 
+# Qt inline container implementations can change between minor versions.
+# Rebuild every application object with the selected Qt headers so that stale
+# objects from another Qt installation cannot be linked into the app.
+make clean
 make -j$MAKE_PARALLEL
 
 rm -rf build 2> /dev/null

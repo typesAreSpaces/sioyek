@@ -213,7 +213,7 @@ mac {
     QMAKE_CXXFLAGS += -std=c++20
     LIBS += -ldl -L$$PWD/mupdf/build/release -lmupdf -lmupdf-third -lmupdf-threads -lz
     CONFIG+=sdk_no_version_check
-    QMAKE_MACOSX_DEPLOYMENT_TARGET = 15
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 27
     ICON = pdf_viewer\icon2.ico
     QMAKE_INFO_PLIST = resources/Info.plist
     LIBS += -framework AppKit

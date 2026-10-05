@@ -1,0 +1,102 @@
+Building Sioyek on macOS
+========================
+
+These instructions follow this checkout's build_mac.sh and README.md.
+Run the commands in Terminal. Compilation has not been run as part of
+writing this file.
+
+1. Open the project directory:
+
+   cd /Users/typesarespaces/Documents/Projects/dev/sioyek
+
+2. Check prerequisites:
+
+   xcode-select -p
+   qmake -query QT_VERSION
+
+   Install Xcode or its command line tools if needed:
+
+   xcode-select --install
+
+   The build script requires Qt 6.7 or newer within Qt 6, with Core, Gui,
+   Widgets, Network, QuickWidgets, Svg, TextToSpeech, OpenGL, OpenGLWidgets,
+   and macdeployqt. It checks these before compiling.
+
+   On this machine, /opt/homebrew/bin/qmake currently reports Qt 6.11.2,
+   and Xcode is selected. The bundled 6.6.1/macos directory is too old
+   for this build script.
+
+   Select the current Qt installation explicitly:
+
+   export Qt6_DIR=/opt/homebrew
+   export PATH="$Qt6_DIR/bin:$PATH"
+
+   If using another Qt installation, set Qt6_DIR to its installation root
+   (the directory containing bin/qmake, not its CMake package directory).
+   The README documents Qt 6.8.2 as another installation option.
+
+3. Ensure the dependency submodules are initialized:
+
+   git submodule update --init --recursive
+
+   This can download dependencies and requires network access. It is
+   normally only needed after cloning or changing dependency revisions.
+
+4. Compile and package:
+
+   MAKE_PARALLEL=4 bash ./build_mac.sh
+
+   Use a smaller MAKE_PARALLEL value if memory is tight. The script builds
+   MuPDF first, builds Sioyek using qmake and make, copies its resources,
+   bundles Qt with macdeployqt, and signs the app locally.
+
+   IMPORTANT: the script deletes and recreates the build directory.
+   Keep unrelated files out of that directory.
+
+   The default build targets this Mac's current major macOS version.
+   To select another deployment target supported by your Qt and SDK:
+
+   MACOSX_DEPLOYMENT_TARGET=14.0 MAKE_PARALLEL=4 bash ./build_mac.sh
+
+5. Find the results:
+
+   build/sioyek.app       Application bundle
+   build/sioyek.dmg       Disk image
+   sioyek-release-mac.zip Archive containing the disk image
+
+   Test the app from the project directory:
+
+   open build/sioyek.app
+
+6. Install:
+
+   Quit the existing Sioyek instance. In Finder, copy build/sioyek.app to
+   /Applications and choose Replace if updating the installed app.
+
+   Launch the installed app:
+
+   open -a sioyek
+   open -a sioyek ~/Documents/example.pdf
+
+7. Optional terminal shortcut:
+
+   Add this line to ~/.zshrc once:
+
+   alias sioyek='/Applications/sioyek.app/Contents/MacOS/sioyek'
+
+   Reload the configuration and open a PDF:
+
+   source ~/.zshrc
+   sioyek ~/Documents/example.pdf
+
+Troubleshooting
+---------------
+
+- qmake not found or wrong Qt version: check Qt6_DIR and run
+  "$Qt6_DIR/bin/qmake" -query QT_VERSION.
+- Missing Qt module or macdeployqt: install the missing component for the
+  same Qt installation selected by Qt6_DIR.
+- Compiler/SDK errors: check xcode-select -p and ensure Xcode has completed
+  its first-launch setup.
+- If switching Qt versions leaves stale application objects, run make clean
+  from the project root (if a Makefile exists), then repeat step 4.
